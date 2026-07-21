@@ -1,0 +1,79 @@
+name: Terraform Deploy
+
+on:
+  workflow_dispatch:
+  push:
+    branches: ["**"]
+    paths:
+      - "deployment-code/**"
+
+permissions:
+  id-token: write
+  contents: read
+
+defaults:
+  run:
+    working-directory: deployment-code
+
+jobs:
+  terraform:
+    runs-on: ubuntu-latest
+    environment: PROD
+
+    env:
+      # --- Azure auth (used by both provider and backend) ---
+      ARM_CLIENT_ID:       ${{ secrets.AZURE_CLIENT_ID }}
+      ARM_TENANT_ID:        ${{ secrets.AZURE_TENANT_ID }}
+      ARM_SUBSCRIPTION_ID:  ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      ARM_USE_OIDC:         "true"
+      ARM_USE_AZUREAD:      "true"
+
+      # --- Terraform variables (lowercase env name, sourced from ALL-CAPS repo variable) ---
+      TF_VAR_platform_landing_zone_name:            ${{ vars.TF_VAR_PLATFORM_LANDING_ZONE_NAME }}
+      TF_VAR_platform_landing_zone_display_name:    ${{ vars.TF_VAR_PLATFORM_LANDING_ZONE_DISPLAY_NAME }}
+      TF_VAR_application_landing_zone_name:         ${{ vars.TF_VAR_APPLICATION_LANDING_ZONE_NAME }}
+      TF_VAR_application_landing_zone_display_name: ${{ vars.TF_VAR_APPLICATION_LANDING_ZONE_DISPLAY_NAME }}
+      TF_VAR_application_landing_zone_children:     ${{ vars.TF_VAR_APPLICATION_LANDING_ZONE_CHILDREN }}
+      TF_VAR_subscription_name:                     ${{ vars.TF_VAR_SUBSCRIPTION_NAME }}
+      TF_VAR_alias_name:                             ${{ vars.TF_VAR_ALIAS_NAME }}
+      TF_VAR_billing_scope_id:                       ${{ vars.TF_VAR_BILLING_SCOPE_ID }}
+      TF_VAR_workload:                               ${{ vars.TF_VAR_WORKLOAD }}
+      TF_VAR_tags:                                   ${{ vars.TF_VAR_TAGS }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          client-id:       ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id:        ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id:  ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.9.0"
+
+      - name: Terraform Init
+        run: |
+          terraform init \
+            -backend-config="resource_group_name=${{ vars.TF_VAR_TFSTATE_RESOURCE_GROUP }}" \
+            -backend-config="storage_account_name=${{ vars.TF_VAR_TFSTATE_STORAGE_ACCOUNT }}" \
+            -backend-config="container_name=${{ vars.TF_VAR_TFSTATE_CONTAINER }}" \
+            -backend-config="key=${{ vars.TF_VAR_TFSTATE_KEY }}"
+
+      - name: Terraform Plan
+        run: terraform plan -out=tfplan
+
+      - name: Upload plan artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: tfplan-${{ github.run_id }}
+          path: deployment-code/tfplan
+          retention-days: 5
+
+      - name: Terraform Apply
+        if: github.ref == 'refs/heads/main'
+        run: terraform apply -auto-approve tfplan
