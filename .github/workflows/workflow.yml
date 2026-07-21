@@ -21,14 +21,12 @@ jobs:
     environment: PROD
 
     env:
-      # --- Azure auth (used by both provider and backend) ---
       ARM_CLIENT_ID:       ${{ vars.AZURE_CLIENT_ID }}
       ARM_TENANT_ID:        ${{ vars.AZURE_TENANT_ID }}
       ARM_SUBSCRIPTION_ID:  ${{ vars.AZURE_SUBSCRIPTION_ID }}
       ARM_USE_OIDC:         "true"
       ARM_USE_AZUREAD:      "true"
 
-      # --- Terraform variables (lowercase env name, sourced from ALL-CAPS repo variable) ---
       TF_VAR_platform_landing_zone_name:            ${{ vars.TF_VAR_PLATFORM_LANDING_ZONE_NAME }}
       TF_VAR_platform_landing_zone_display_name:    ${{ vars.TF_VAR_PLATFORM_LANDING_ZONE_DISPLAY_NAME }}
       TF_VAR_application_landing_zone_name:         ${{ vars.TF_VAR_APPLICATION_LANDING_ZONE_NAME }}
@@ -47,9 +45,13 @@ jobs:
       - name: Azure Login
         uses: azure/login@v2
         with:
-          client-id:       ${{ vars.AZURE_CLIENT_ID }}
-          tenant-id:        ${{ vars.AZURE_TENANT_ID }}
-          subscription-id:  ${{ vars.AZURE_SUBSCRIPTION_ID }}
+          client-id:              ${{ vars.AZURE_CLIENT_ID }}
+          tenant-id:               ${{ vars.AZURE_TENANT_ID }}
+          subscription-id:         ${{ vars.AZURE_SUBSCRIPTION_ID }}
+          enable-AzPSSession:      false
+          environment:              azurecloud
+          allow-no-subscriptions:  false
+          audience:                 api://AzureADTokenExchange
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
@@ -62,7 +64,7 @@ jobs:
             -backend-config="resource_group_name=${{ vars.TF_VAR_TFSTATE_RESOURCE_GROUP }}" \
             -backend-config="storage_account_name=${{ vars.TF_VAR_TFSTATE_STORAGE_ACCOUNT }}" \
             -backend-config="container_name=${{ vars.TF_VAR_TFSTATE_CONTAINER }}" \
-            -backend-config="key=${{ vars.TF_VAR_TFSTATE_KEY }}"
+            -backend-config="key=${{ github.event.repository.name }}.tfstate"
 
       - name: Terraform Plan
         run: terraform plan -out=tfplan
