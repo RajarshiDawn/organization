@@ -6,6 +6,7 @@ on:
     branches: ["**"]
     paths:
       - "deployment-code/**"
+      - ".github/workflows/terraform-deploy.yml"
 
 permissions:
   id-token: write
