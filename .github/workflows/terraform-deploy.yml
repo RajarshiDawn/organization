@@ -34,10 +34,13 @@ jobs:
       TF_VAR_application_landing_zone_display_name: ${{ vars.TF_VAR_APPLICATION_LANDING_ZONE_DISPLAY_NAME }}
       TF_VAR_application_landing_zone_children:     ${{ vars.TF_VAR_APPLICATION_LANDING_ZONE_CHILDREN }}
       TF_VAR_subscription_name:                     ${{ vars.TF_VAR_SUBSCRIPTION_NAME }}
-      TF_VAR_alias_name:                             ${{ vars.TF_VAR_ALIAS_NAME }}
-      TF_VAR_billing_scope_id:                       ${{ vars.TF_VAR_BILLING_SCOPE_ID }}
-      TF_VAR_workload:                               ${{ vars.TF_VAR_WORKLOAD }}
-      TF_VAR_tags:                                   ${{ vars.TF_VAR_TAGS }}
+      TF_VAR_alias_name:                            ${{ vars.TF_VAR_ALIAS_NAME }}
+      TF_VAR_billing_scope_id:                      ${{ vars.TF_VAR_BILLING_SCOPE_ID }}
+      TF_VAR_workload:                              ${{ vars.TF_VAR_WORKLOAD }}
+      TF_VAR_tags:                                  ${{ vars.TF_VAR_TAGS }}
+      TF_VAR_TFSTATE_RESOURCE_GROUP:                ${{ vars.TF_VAR_TFSTATE_RESOURCE_GROUP }}
+      TF_VAR_TFSTATE_STORAGE_ACCOUNT:               ${{ vars.TF_VAR_TFSTATE_STORAGE_ACCOUNT }}
+      TF_VAR_TFSTATE_CONTAINERL:                    ${{ vars.TF_VAR_TFSTATE_CONTAINER }}
 
     steps:
       - name: Checkout
