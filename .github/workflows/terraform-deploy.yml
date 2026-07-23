@@ -46,8 +46,13 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      
+      - name: Debug - list deployment-code contents
+        run: |
+          ls -la deployment-code
+          find deployment-code -name "*.tf"
 
-            # --- Checkov: runs on non-main branches, before infra credentials are involved ---
+      # --- Checkov: runs on non-main branches, before infra credentials are involved ---
       - name: Run Checkov
         if: github.ref != 'refs/heads/main'
         id: checkov
