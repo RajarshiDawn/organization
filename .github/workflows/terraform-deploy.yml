@@ -57,7 +57,7 @@ jobs:
           framework: terraform
           output_format: sarif
           output_file_path: checkov-results.sarif
-          soft_fail: true   # set to false later to hard-block on findings
+          soft_fail: false   # set to false later to hard-block on findings
 
       - name: Upload Checkov SARIF to Security tab
         if: github.ref != 'refs/heads/main'
