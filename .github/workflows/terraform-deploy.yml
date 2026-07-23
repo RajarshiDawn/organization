@@ -47,13 +47,18 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Debug - list deployment-code contents
+        run: |
+          ls -la deployment-code
+          find deployment-code -name "*.tf"
+
       # --- Checkov: runs on non-main branches, before infra credentials are involved ---
       - name: Run Checkov
         if: github.ref != 'refs/heads/main'
         id: checkov
         uses: bridgecrewio/checkov-action@master
         with:
-          directory: /
+          directory: deployment-code
           framework: terraform
           output_format: sarif
           output_file_path: checkov-results.sarif
