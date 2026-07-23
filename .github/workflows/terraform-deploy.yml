@@ -46,11 +46,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      
-      - name: Debug - list deployment-code contents
-        run: |
-          ls -la deployment-code
-          find deployment-code -name "*.tf"
 
       # --- Checkov: runs on non-main branches, before infra credentials are involved ---
       - name: Run Checkov
@@ -58,7 +53,7 @@ jobs:
         id: checkov
         uses: bridgecrewio/checkov-action@master
         with:
-          directory: deployment-code
+          directory: /
           framework: terraform
           output_format: sarif
           output_file_path: checkov-results.sarif
