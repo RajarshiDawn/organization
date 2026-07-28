@@ -24,10 +24,6 @@ data "azurerm_management_group" "tenant_root" {
   name = data.azurerm_client_config.current.tenant_id
 }
 
-data "azurerm_subscription" "deployment_subscription" {
-  display_name = var.dep_svcs_subs_name
-}
-
 # --- Top-level Landing Zones under Tenant Root ---
 resource "azurerm_management_group" "platform_landing_zone" {
   name                       = var.platform_landing_zone_name
@@ -67,5 +63,5 @@ resource "azurerm_management_group_subscription_association" "assc_logging_subsc
 
 resource "azurerm_management_group_subscription_association" "assc_deployment_subscription" {
   management_group_id = azurerm_management_group.platform_landing_zone.id
-  subscription_id     = data.azurerm_subscription.existing.id
+  subscription_id     = var.dep_svcs_subs_name
 }
