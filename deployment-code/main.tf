@@ -54,3 +54,14 @@ resource "azurerm_subscription" "this" {
   workload          = var.workload
   tags              = var.tags
 }
+
+# --- Associate the newly created subscription & existing subscription with the Platform Landing Zone ---
+resource "azurerm_management_group_subscription_association" "assc_logging_subscription" {
+  management_group_id = azurerm_management_group.platform_landing_zone.id
+  subscription_id     = "/subscriptions/${azurerm_subscription.this.subscription_id}"
+}
+
+resource "azurerm_management_group_subscription_association" "assc_deployment_subscription" {
+  management_group_id = azurerm_management_group.platform_landing_zone.id
+  subscription_id     = var.dep_svcs_subs_name
+}

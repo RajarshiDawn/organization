@@ -32,6 +32,11 @@ variable "subscription_name" {
   type        = string
 }
 
+variable "dep_svcs_subs_name" {
+  description = "Display name of the name central depoyment subscription"
+  type        = string
+}
+
 variable "alias_name" {
   description = "Alias name for the subscription. Changing this forces a new subscription to be created."
   type        = string
