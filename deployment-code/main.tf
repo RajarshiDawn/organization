@@ -58,7 +58,7 @@ resource "azurerm_subscription" "this" {
 # --- Associate the newly created subscription & existing subscription with the Platform Landing Zone ---
 resource "azurerm_management_group_subscription_association" "assc_logging_subscription" {
   management_group_id = azurerm_management_group.platform_landing_zone.id
-  subscription_id     = azurerm_subscription.this.id
+  subscription_id     = "/subscriptions/${azurerm_subscription.this.subscription_id}"
 }
 
 resource "azurerm_management_group_subscription_association" "assc_deployment_subscription" {
